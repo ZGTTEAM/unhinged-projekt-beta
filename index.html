@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UNHINGED</title>
+<style>
+:root {
+  --site-primary: #a10f22;
+  --site-secondary: #24232a;
+  --site-background: #09090c;
+  --site-on-primary: #ffffff;
+  --site-on-secondary: #f4f1f2;
+  --site-on-background: #f4f1f2;
+  --site-font-body: "Arial", "Helvetica", sans-serif;
+  --site-font-heading: Impact, "Arial Narrow", sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #09090c; color: #f4f1f2; font-family: var(--site-font-body); }
+#app { min-height: 100vh; width: 100%; overflow: hidden; background-color: var(--site-background); color: var(--site-on-background); position: relative; }
+.noise { position: absolute; inset: 0; pointer-events: none; opacity: calc(.08 * var(--site-decoration-opacity)); background-image: repeating-linear-gradient(0deg, transparent 0 3px, #fff 4px); mix-blend-mode: overlay; }
+.screen { min-height: 100vh; display: none; position: relative; padding: clamp(22px, 5vw, 64px); }
+.screen.active { display: flex; }
+.menu { align-items: center; }
+.menu:before { content: ""; position: absolute; inset: 0; opacity: calc(.5 * var(--site-decoration-opacity)); background: linear-gradient(90deg, #070709 0%, rgba(7,7,9,.92) 38%, rgba(7,7,9,.22) 100%), radial-gradient(ellipse at 80% 55%, #4b1018 0%, #151016 38%, #08080b 76%); }
+.train-art { position: absolute; right: -7%; bottom: 0; width: 67%; height: 75%; opacity: calc(.7 * var(--site-decoration-opacity)); pointer-events: none; }
+.menu-content { position: relative; z-index: 1; width: min(650px, 100%); }
+.eyebrow { color: #c7aeb1; letter-spacing: .34em; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+h1 { font-family: var(--site-font-heading); font-size: clamp(76px, 15vw, 158px); line-height: .78; letter-spacing: .02em; margin: 22px 0 20px; font-weight: 900; text-shadow: 4px 4px 0 #540a15; }
+.subtitle { max-width: 430px; color: #c9c3c5; line-height: 1.7; font-size: 14px; }
+.rule { width: 100%; max-width: 430px; height: 1px; background: #514146; margin: 30px 0; }
+.actions { display: grid; gap: 11px; width: min(330px, 100%); }
+button { font: inherit; cursor: pointer; color: #f8f3f4; border: 1px solid #5b4449; background: rgba(27,24,29,.92); padding: 15px 18px; text-align: left; letter-spacing: .13em; font-weight: 800; transition: transform .15s, background .15s, border-color .15s; }
+button:hover:not(:disabled), button:focus-visible { transform: translateX(4px); border-color: #df3046; background: #35141b; outline: none; }
+button.primary { background: var(--site-primary); border-color: var(--site-primary); }
+button.primary:hover { background: #c51b32; }
+button:disabled { opacity: .7; cursor: not-allowed; }
+.small-note { font-size: 10px; color: #8f8588; margin-top: 24px; letter-spacing: .16em; }
+.corner { position: absolute; right: 28px; top: 26px; z-index: 2; color: #a99b9e; font-size: 10px; letter-spacing: .2em; text-align: right; }
+.game { flex-direction: column; padding: 0; background: #0c0c10; }
+.hud { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 22px; border-bottom: 1px solid #38282d; background: #111015; z-index: 2; }
+.brand { font-family: var(--site-font-heading); font-size: 26px; letter-spacing: .08em; }
+.hud-info { color: #a9a0a2; font-size: 11px; letter-spacing: .1em; text-align: right; }
+.game-world { flex: 1; min-height: 540px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 26px; background: radial-gradient(ellipse at 50% 50%, #282127, #0b0b0e 75%); perspective: 850px; }
+.tunnel { position: absolute; inset: 0; opacity: .78; pointer-events: none; overflow: hidden; background: radial-gradient(ellipse at 50% 42%, #3a252b 0%, #111015 45%, #050507 100%); }
+.corridor3d { position:absolute; inset:0; transform-style:preserve-3d; transform:rotateX(2deg); }
+.wall3d { position:absolute; top:0; bottom:0; width:55%; border:2px solid #49343b; background:repeating-linear-gradient(90deg,#17151b 0 12%,#30232a 12.5% 13%,#111015 13.5% 26%); box-shadow:inset 0 0 70px #000; }
+.wall3d.left { left:-16%; transform-origin:right center; transform:rotateY(48deg); }
+.wall3d.right { right:-16%; transform-origin:left center; transform:rotateY(-48deg); }
+.floor3d { position:absolute; left:13%; right:13%; bottom:-24%; height:70%; transform-origin:center top; transform:rotateX(66deg); background:repeating-linear-gradient(0deg,#211b20 0 48px,#4a3038 50px 53px,#151217 56px 100px); border-top:3px solid #6a3944; }
+.ceiling3d { position:absolute; left:13%; right:13%; top:-35%; height:70%; transform-origin:center bottom; transform:rotateX(-66deg); background:repeating-linear-gradient(0deg,#17141a 0 70px,#3c2b32 72px 75px,#100f13 78px 140px); }
+.door3d { position:absolute; top:18%; left:39%; width:22%; height:48%; border:5px solid #4c373d; background:linear-gradient(90deg,#111015,#292027 48%,#0b0a0d); box-shadow:0 0 35px #b71b3030; }
+.door3d:before { content:"";position:absolute;inset:8%;border:1px solid #60424a;background:linear-gradient(180deg,#171218,#09090c); }
+.light3d { position:absolute; top:9%; left:42%; width:16%; height:8px; background:#d6b8bd; box-shadow:0 0 20px 8px #b71b3055; }
+.tunnel.anomaly .light3d { background:#e3263e; box-shadow:0 0 24px 10px #e3263e88; }
+.tunnel.anomaly .door3d { transform:scaleX(.7); }
+.scene-label { z-index: 1; font-size: 10px; color: #c8aeb2; letter-spacing: .3em; text-transform: uppercase; }
+.scene-title { z-index: 1; font-family: var(--site-font-heading); font-size: clamp(32px, 7vw, 62px); text-align: center; letter-spacing: .04em; margin: 15px 0 10px; }
+.scene-copy { z-index: 1; max-width: 530px; color: #c6bec1; text-align: center; line-height: 1.65; font-size: 14px; }
+.object { z-index: 1; width: min(520px, 100%); min-height: 140px; display: flex; align-items: center; justify-content: center; margin: 20px 0; border: 1px solid #554249; background: linear-gradient(135deg, rgba(42,30,37,.92), rgba(11,11,14,.95)); text-align: center; padding: 22px; box-shadow: 0 20px 60px #0008; }
+.object.sign { border: 3px double #6d5d4e; color: #f2e9d8; background: #171512; transform: rotate(-1deg); }
+.sign strong { display: block; font-family: var(--site-font-heading); font-size: clamp(24px, 5vw, 42px); letter-spacing: .08em; }
+.sign em { display: block; color: #d82a3e; font-style: normal; font-weight: 900; font-size: clamp(17px, 3vw, 25px); margin-top: 12px; }
+.scene-buttons { z-index: 1; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px; }
+.scene-buttons button { min-width: 190px; text-align: center; }
+.feedback { z-index: 1; min-height: 24px; margin-top: 18px; color: #e4c5ca; font-size: 13px; text-align: center; }
+.progress { height: 4px; background: #2b2025; }
+.progress > div { height: 100%; background: #b71b30; width: 0%; transition: width .4s; }
+.footer { display: flex; justify-content: space-between; gap: 10px; padding: 12px 22px; color: #82777a; font-size: 10px; letter-spacing: .13em; background: #111015; }
+.modal { position: absolute; z-index: 5; inset: 0; background: #050507eF; display: none; align-items: center; justify-content: center; padding: 24px; }
+.modal.open { display: flex; }
+.modal-card { max-width: 500px; border: 1px solid #604047; padding: 28px; background: #151217; }
+.modal-card h2 { font-family: var(--site-font-heading); font-size: 38px; margin: 0 0 12px; }
+.modal-card p { color: #c7bec1; line-height: 1.65; font-size: 14px; }
+@media (max-width: 650px) {
+ .train-art { width: 105%; height: 47%; right: -24%; opacity: calc(.4 * var(--site-decoration-opacity)); }
+ .corner { top: auto; bottom: 18px; right: 20px; }
+ .screen { padding: 24px; }
+ .hud { padding: 13px 16px; }
+ .hud-info { max-width: 130px; line-height: 1.5; }
+ .game-world { min-height: 470px; padding: 18px; }
+ .scene-buttons { width: 100%; }
+ .scene-buttons button { width: 100%; }
+}
+</style>
+</head>
+<body>
+<main id="app">
+  <div class="noise"></div>
+  <section id="menu" class="screen menu active">
+    <svg class="train-art" viewBox="0 0 700 520" aria-hidden="true">
+      <defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5b4147"/><stop offset=".5" stop-color="#17151a"/><stop offset="1" stop-color="#070709"/></linearGradient></defs>
+      <path d="M175 70 L525 70 L625 510 L70 510 Z" fill="#09090c" stroke="#4c333a" stroke-width="4"/>
+      <path d="M210 110 L490 110 L555 430 L145 430 Z" fill="url(#metal)" stroke="#75515a" stroke-width="5"/>
+      <path d="M250 145 L450 145 L475 275 L225 275 Z" fill="#080a0d" stroke="#9b7278" stroke-width="5"/>
+      <path d="M265 160 L435 160 L449 255 L251 255 Z" fill="#160c11"/>
+      <circle cx="275" cy="335" r="22" fill="#d42b40"/><circle cx="425" cy="335" r="22" fill="#d42b40"/>
+      <path d="M190 390 L510 390" stroke="#a3283a" stroke-width="8"/>
+      <path d="M115 480 L585 480" stroke="#40343a" stroke-width="10"/>
+      <path d="M175 70 L70 510 M525 70 L625 510" stroke="#211b21" stroke-width="18"/>
+      <path d="M315 110 L350 35 L385 110" fill="#151218" stroke="#4c333a" stroke-width="4"/>
+    </svg>
+    <div class="corner">AN UNKNOWN LINE<br>NO FINAL STATION</div>
+    <div class="menu-content">
+      <div class="eyebrow">A psychological horror experience</div>
+      <h1>UN<br>HINGED</h1>
+      <div class="eyebrow">THE INFINITE TRAIN</div>
+      <p class="subtitle">The elevator failed. The doors opened somewhere impossible. Now you're on a train that was never meant to stop.</p>
+      <div class="rule"></div>
+      <div class="actions">
+        <button class="primary" id="startBtn">▶ &nbsp; START GAME</button>
+        <button id="howBtn">HOW TO PLAY</button>
+        <button disabled>◎ &nbsp; MULTIPLAYER — COMING SOON!</button>
+        <button id="creditsBtn">CREDITS</button>
+      </div>
+      <div class="small-note">HEADPHONES RECOMMENDED · CHAPTER 01</div>
+    </div>
+  </section>
+
+  <section id="game" class="screen game">
+    <header class="hud">
+      <div class="brand">UNHINGED<span style="color:#b71b30">.</span></div>
+      <div class="hud-info"><span id="chapter">INTRO</span><br><span id="roundText">THE ELEVATOR</span></div>
+    </header>
+    <div class="progress"><div id="progressBar"></div></div>
+    <div class="game-world">
+    <div class="tunnel" id="tunnel"><div class="corridor3d"><div class="wall3d left"></div><div class="wall3d right"></div><div class="floor3d"></div><div class="ceiling3d"></div><div class="door3d"></div><div class="light3d"></div></div></div>
+      <div class="scene-label" id="sceneLabel">11:47 PM · UNKNOWN LOCATION</div>
+      <div class="scene-title" id="sceneTitle">THE ELEVATOR</div>
+      <div class="scene-copy" id="sceneCopy">You step inside. The doors close. The elevator begins to descend.</div>
+      <div class="object" id="sceneObject">FLOOR: UNKNOWN<br>DESTINATION: UNKNOWN</div>
+      <div class="scene-buttons" id="sceneButtons"><button class="primary" id="advanceBtn">CONTINUE</button></div>
+      <div class="feedback" id="feedback" aria-live="polite"></div>
+    </div>
+    <footer class="footer"><span>STOPPING: NEVER</span><span>SOLO DEMO · MULTIPLAYER COMING SOON</span></footer>
+  </section>
+
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <h2 id="modalTitle">HOW TO PLAY</h2>
+      <p id="modalCopy">Observe every carriage. If you spot an anomaly, choose BACK. If everything seems normal, choose CONTINUE. Each decision changes what happens next.</p>
+      <button class="primary" id="closeModal">GOT IT</button>
+    </div>
+  </div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const menu = $("menu"), game = $("game");
+let step = 0, round = 0, danger = 0, anomaliesSeen = 0;
+const scenes = [
+  {chapter:"CHAPTER 01", round:"THE ELEVATOR", label:"11:47 PM · UNKNOWN LOCATION", title:"THE ELEVATOR", copy:"You step inside. The doors close. The elevator begins to descend. Suddenly, the lights turn red.", object:"FLOOR: UNKNOWN<br>DESTINATION: UNKNOWN", type:"story"},
+  {chapter:"CHAPTER 01", round:"LEVEL 01 / 10", label:"UNKNOWN LINE · 11:51 PM", title:"THE INFINITE TRAIN", copy:"The elevator throws you onto the front of a train, then disappears. A sign warns you that this train will never stop.", object:'<div class="sign"><strong>THE INFINITE TRAIN</strong><em>STOPPING: NEVER!</em></div>', type:"story"},
+  {chapter:"CHAPTER 01", round:"LEVEL 02 / 10", label:"CAR 01 · LIGHTS: NORMAL", title:"KEEP YOUR EYES OPEN", copy:"The seats are empty, the lights are steady, and the windows show a dark forest. Does anything seem wrong?", object:"SEATS: EMPTY<br>LIGHTS: STEADY<br>WINDOWS: DARK FOREST", type:"decision", anomaly:false},
+  {chapter:"CHAPTER 01", round:"LEVEL 03 / 10", label:"CAR 02 · LIGHTS: FLICKERING", title:"DID YOU SEE THAT?", copy:"A low hum fills the carriage. The ceiling light flickers in a strange rhythm. Trust your eyes, not the train.", object:"LIGHTS: FLICKERING<br>SEATS: EMPTY<br>WINDOWS: DARK FOREST", type:"decision", anomaly:true},
+  {chapter:"CHAPTER 01", round:"LEVEL 04 / 10", label:"CAR 03 · QUIET", title:"TOO QUIET", copy:"The next carriage is almost identical. No movement. No voices. Everything looks normal. Probably.", object:"LIGHTS: STEADY<br>SEATS: EMPTY<br>WINDOWS: DARK FOREST", type:"decision", anomaly:false},
+  {chapter:"CHAPTER 01", round:"LEVEL 05 / 10", label:"CAR 04 · UNKNOWN PASSENGER", title:"YOU ARE NOT ALONE", copy:"A passenger stands at the far end, facing the wall. You don't remember anyone boarding.", object:"PASSENGERS: 1<br>POSITION: FACING THE WALL<br>STATUS: UNKNOWN", type:"decision", anomaly:true},
+  {chapter:"CHAPTER 01", round:"LEVEL 06 / 10", label:"CAR 05 · WINDOW ERROR", title:"THAT IS IMPOSSIBLE", copy:"Outside, the same station sign appears again. The train never slowed down, yet the sign is getting closer.", object:"WINDOW VIEW: SAME STATION<br>TRAIN SPEED: UNCHANGED", type:"decision", anomaly:true},
+  {chapter:"CHAPTER 01", round:"LEVEL 07 / 10", label:"CAR 06 · DOOR STATUS: NORMAL", title:"THE RED DOOR", copy:"A red door stands at the end of the carriage. You could swear it was grey a moment ago.", object:"END DOOR: RED<br>HANDLE: COLD<br>LOCK: UNKNOWN", type:"decision", anomaly:true},
+  {chapter:"CHAPTER 01", round:"LEVEL 08 / 10", label:"CAR 07 · CLOCK: 11:51 PM", title:"TIME IS STUCK", copy:"The carriage clock still reads 11:51 PM. Your watch says midnight. The train has been moving for hours.", object:"CARRIAGE CLOCK: 11:51 PM<br>YOUR WATCH: 12:00 AM", type:"decision", anomaly:true},
+  {chapter:"CHAPTER 01", round:"LEVEL 09 / 10", label:"CAR 08 · LIGHTS: STEADY", title:"DON'T BLINK", copy:"The lights are steady. The seats are empty. The windows show the forest. Nothing has changed this time.", object:"LIGHTS: STEADY<br>SEATS: EMPTY<br>WINDOWS: DARK FOREST", type:"decision", anomaly:false},
+  {chapter:"CHAPTER 01", round:"LEVEL 10 / 10", label:"FINAL CARRIAGE · SIGNAL LOST", title:"THE LAST DOOR", copy:"The carriage is silent. A door waits ahead. You hear the elevator bell on the other side. This is your final decision in Chapter 01.", object:"EXIT: UNKNOWN<br>TRAIN SPEED: INCREASING<br>STOPPING: NEVER", type:"decision", anomaly:true},
+  {chapter:"CHAPTER 01 COMPLETE", round:"END OF CHAPTER 01", label:"SIGNAL LOST · 00:00 AM", title:"THE JOURNEY CONTINUES", copy:"You survived the first ten levels. Somewhere ahead, a door unlocks. The train keeps moving. Chapter 02 is not ready yet.", object:'<div class="sign"><strong>NO FINAL STATION</strong><em>STOPPING: NEVER!</em></div>', type:"ending"}
+];
+function showScene(n) {
+  step = Math.min(n, scenes.length-1);
+  const s = scenes[step];
+  $("tunnel").classList.toggle("anomaly", !!s.anomaly);
+  $("chapter").textContent=s.chapter; $("roundText").textContent=s.round;
+  $("sceneLabel").textContent=s.label; $("sceneTitle").textContent=s.title;
+  $("sceneCopy").textContent=s.copy; $("sceneObject").innerHTML=s.object;
+  $("feedback").textContent="";
+  $("progressBar").style.width=(step/(scenes.length-1)*100)+"%";
+  const buttons=$("sceneButtons"); buttons.innerHTML="";
+  if(s.type==="story") addButton(buttons,step===0?"ENTER THE ELEVATOR":"BOARD THE TRAIN",()=>showScene(step+1),true);
+  if(s.type==="decision") {
+    addButton(buttons,"↶  BACK",()=>decide(true,s.anomaly),false);
+    addButton(buttons,"→  CONTINUE",()=>decide(false,s.anomaly),true);
+  }
+  if(s.type==="ending") {
+    addButton(buttons,"PLAY AGAIN",resetGame,true);
+    addButton(buttons,"MAIN MENU",toMenu,false);
+  }
+}
+function addButton(parent,label,fn,primary) {
+  const b=document.createElement("button"); b.textContent=label; if(primary)b.className="primary"; b.addEventListener("click",fn); parent.appendChild(b);
+}
+function decide(back, anomaly) {
+  const correct = back===anomaly;
+  if(correct) { anomaliesSeen += anomaly?1:0; $("feedback").textContent= anomaly?"CORRECT — YOU FOUND THE ANOMALY.":"CORRECT — NOTHING WAS OUT OF PLACE."; }
+  else { danger++; $("feedback").textContent=back?"WRONG. THERE WAS NO ANOMALY. THE TRAIN REMEMBERS.":"WRONG. YOU MISSED IT. SOMETHING HAS NOTICED YOU."; }
+  if(danger>=3) {
+    $("sceneTitle").textContent="THE TRAIN HAS NOTICED YOU";
+    $("sceneCopy").textContent="The carriage lights turn red. The doors lock. The train's speaker whispers your arrival time. The journey ends here.";
+    $("sceneObject").innerHTML='<div class="sign"><strong>ROUTE TERMINATED</strong><em>PASSENGER LOST</em></div>';
+    $("sceneButtons").innerHTML=""; addButton($("sceneButtons"),"TRY AGAIN",resetGame,true); addButton($("sceneButtons"),"MAIN MENU",toMenu,false);
+    $("progressBar").style.width="100%"; return;
+  }
+  window.setTimeout(()=>showScene(step+1),1000);
+}
+function resetGame(){danger=0;anomaliesSeen=0;showScene(0);}
+function toMenu(){game.classList.remove("active");menu.classList.add("active");}
+$("startBtn").addEventListener("click",()=>{menu.classList.remove("active");game.classList.add("active");resetGame();});
+$("howBtn").addEventListener("click",()=>{$("modalTitle").textContent="HOW TO PLAY";$("modalCopy").textContent="Explore the train and look for things that do not belong. If you notice an anomaly, choose BACK. If everything is normal, choose CONTINUE. Wrong decisions raise the danger level. Survive the journey."; $("modal").classList.add("open");});
+$("creditsBtn").addEventListener("click",()=>{$("modalTitle").textContent="CREDITS";$("modalCopy").textContent="UNHINGED — The Infinite Train. A browser horror prototype. Solo demo in development. Multiplayer — Coming Soon!";$("modal").classList.add("open");});
+$("closeModal").addEventListener("click",()=>$("modal").classList.remove("open"));
+$("modal").addEventListener("click",e=>{if(e.target===$("modal"))$("modal").classList.remove("open");});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("modal").classList.remove("open");});
+</script>
+</body>
+</html>
